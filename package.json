@@ -1,0 +1,23 @@
+{
+  "name": "fakebook-backend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "@auth/express": "^0.8.4",
+    "@auth/sequelize-adapter": "^2.7.4",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "^4.21.2",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "minio": "^8.0.3",
+    "morgan": "~1.9.1",
+    "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2"
+  }
+}
