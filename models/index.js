@@ -16,14 +16,8 @@ const database = process.env.DB_NAME;
 const dialect = "postgres";
 
 let sequelize;
-//if (config.use_env_variable) {
-//   sequelize = new Sequelize(database, user, password, {
-// 	host: host,
-// 	dialect: dialect
-//   });
-//} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-//}
+  sequelize = new Sequelize(database, user, password, {host: host, dialect: dialect});
+  //sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 fs
   .readdirSync(__dirname)
