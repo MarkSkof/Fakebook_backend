@@ -10,13 +10,14 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
-#    networks:
-#      - fakebook_network
+    networks:
+      - fakebook_network
 
   api:
     image: fakebook_api
     container_name: api
     environment:
+      - PORT=4000
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=postgres
@@ -25,29 +26,27 @@ services:
       - MINIO_BUCKET=fakebook
       - MINIO_ACCESS_KEY=12345678
       - MINIO_SECRET_KEY=12345678
-      - MINIO_HOST=10.29.117.119
+      - MINIO_HOST=192.168.0.118
       - MINIO_PORT=9000
     ports:
-      - "3000:3000"
+      - "4000:4000"
     depends_on:
       - db
       - minio
-#    networks:
-#      - fakebook_network
+    networks:
+      - fakebook_network
 
   minio:
     image: minio/minio:latest
     container_name: minio
     environment:
-      - MINIO_ROOT_USER=adminadmin
+      - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=adminadmin
-      - MINIO_DOMAIN=192.168.1.100
-      - MINIO_SERVER_URL=http://127.0.0.1:9000
     ports:
       - "9000:9000"
       - "9001:9001"
-    ##networks:
-    ##  - fakebook_network
+    networks:
+      - fakebook_network
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
@@ -55,7 +54,7 @@ services:
 volumes:
   minio_data:
 
-#networks:
-#  fakebook_network:
-#    driver: bridge
+networks:
+  fakebook_network:
+    driver: bridge
     
