@@ -1,68 +1,102 @@
 var express = require('express');
 var router = express.Router();
-const { User, User_settings } = require('../models');
+const { User, User_settings, Profile } = require('../models');
+const { minioClient } = require('../minio.js');
+const authenticateToken = require("../middlewares/jswTokenCheck");
 
 
-router.post("/getById", async (req, res) => {
+router.post("/getById", authenticateToken, async (req, res) => {
 	const { userId } = req.body;
 
 	User.findOne({
 		where: {
 			id: userId
-		}
+		},
+		include: [
+			{
+				model: User_settings,
+				as: "settings",
+			},
+			{
+				model: Profile,
+				as: "profile",
+			}
+		]
 	}).then(result => {
-		if (result === null) {
-			return res.status(204)
-		}
 		return res.status(200).json(result);
 	}).catch((err) => {
-		return res.status(400).json({error: err});
+		return res.status(400).json({error: err.message});
 	});
 });
 
-router.post("/getByEmail", async (req, res) => {
+router.post("/getByEmail", authenticateToken, async (req, res) => {
 	const { email } = req.body;
 
-	User.findOne({
+	await User.findOne({
 		where: {
 			email: email
-		}
-	}).then(result => {
-		if (result === null) {
-			return res.status(204)
+		},
+		include: [
+			{
+				model: User_settings,
+				as: "settings",
+			},
+			{
+				model: Profile,
+				as: "profile",
+			}
+		]
+	}).then(async result => {
+		if (result !== null) {
+			if (result.profile.profileImage) {
+				await minioClient.presignedGetObject(process.env.MINIO_BUCKET || "fakebook", result.profile.profileImage, 3600)
+					.then((minioResult) => {
+						result.profile.profileImage = minioResult;
+					}).catch((err) => {
+						result.profile.profileImage = null;
+					});
+			}
+
+			if (result.profile.bannerImage !== null) {
+				await minioClient.presignedGetObject(process.env.MINIO_BUCKET || "fakebook", result.profile.bannerImage, 3600)
+					.then((minioResult) => {b
+						result.profile.bannerImage = minioResult;
+					}).catch((err) => {
+						result.profile.bannerImage = null;
+					});
+			}
 		}
 		return res.status(200).json(result);
 	}).catch((err) => {
-		return res.status(400).json({error: err});
+		return res.status(400).json({error: err.message});
 	});
 });
 
 
-router.post("/create", async (req, res) => {
-	const {username, email, password, birthDate} = req.body;
+router.post("/create", authenticateToken, async (req, res) => {
+	const { firstname, lastname, email, password, birthDate} = req.body;
 
-	const date = new Date(birthDate)
-	const dateNow = new Date();
-	dateNow.setFullYear(dateNow.getFullYear() - 18)
-	if (dateNow < date) {
-		return res.status(400).json({error: "You must be at least 18 years old to use this app."});
-	}
-
-	User.create({username, email, password, birthDate})
+	User.create({firstname, lastname, email, password, birthDate})
 		.then(userResult => {
 			User_settings.create({
 				userId: userResult.id,
 			}).then((settingsResult) => {
-				return res.status(200).json({ userResult, settingsResult });
+				Profile.create({
+					userId: userResult.id,
+				}).then(profileResult => {
+					return res.status(200).json({ user: userResult, settings: settingsResult, profile: profileResult });
+				}).catch((profileErr) => {
+					return res.status(400).json({profileErr});
+				})
 			}).catch((settingsErr) => {
 				return res.status(400).json({error: settingsErr});
 			})
 		}).catch((userErr) => {
-			return res.status(400).json({error: userErr});
+			return res.status(400).json({error: userErr.message});
 		});
 });
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", authenticateToken, async (req, res) => {
 	const {userId} = req.body;
 
 	User.destroy({
@@ -72,7 +106,7 @@ router.post("/delete", async (req, res) => {
 	}).then(result => {
 		return res.status(200).json(result);
 	}).catch((err) => {
-		return res.status(400).json({error: err});
+		return res.status(400).json({error: err.message});
 	});
 });
 

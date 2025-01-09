@@ -1,9 +1,7 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Friend extends Model {
+  class Relationship extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
 		this.belongsTo(User, { foreignKey: "userBId", as: "userB" })
 	}
   }
-  Friend.init({
+  Relationship.init({
     userAId: {
 		type: DataTypes.UUID,
 		primaryKey: true,
@@ -27,9 +25,14 @@ module.exports = (sequelize, DataTypes) => {
 		allowNull: false,
 		defaultValue: DataTypes.UUIDV4
 	},
+    status: {
+        type: DataTypes.ENUM('FRIEND_REQUEST', 'FRIEND', 'BLOCKED'),
+        allowNull: false,
+        defaultValue: 'FRIEND_REQUEST'
+    }
   }, {
     sequelize,
-    modelName: 'Friend',
+    modelName: 'Relationship',
   });
-  return Friend;
+  return Relationship;
 };

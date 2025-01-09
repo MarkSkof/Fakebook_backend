@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 const { Comment } = require('../models');
+const authenticateToken = require('../middlewares/jswTokenCheck')
 
-router.post('/getByPostId', async (req, res) => {
+router.post('/getByPostId', authenticateToken, async (req, res) => {
     const {offset, limit, postId} = req.body;
     Comment.findAll({
         where: {
@@ -15,7 +16,7 @@ router.post('/getByPostId', async (req, res) => {
     });
 });
 
-router.post('/create', async (req, res) => {
+router.post('/create', authenticateToken, async (req, res) => {
     const { userId, postId, text } = req.body;
     Comment.create({userId: userId, postId: postId, text: text})
         .then((result) => {
@@ -25,7 +26,7 @@ router.post('/create', async (req, res) => {
         });
 });
 
-router.post('/delete', async (req, res) => {
+router.post('/delete', authenticateToken, async (req, res) => {
     const { id } = req.body;
     await Comment.destroy({
         where: {

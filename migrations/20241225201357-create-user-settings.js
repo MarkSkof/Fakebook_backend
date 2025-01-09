@@ -9,12 +9,6 @@ module.exports = {
         type: Sequelize.UUID,
 		defaultValue: Sequelize.UUIDV4
       },
-      profileImage: {
-        type: Sequelize.STRING
-      },
-      bannerImage: {
-        type: Sequelize.STRING
-      },
       bio: {
         type: Sequelize.STRING
       },

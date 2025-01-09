@@ -16,9 +16,6 @@ module.exports = {
 		defaultValue: Sequelize.UUIDV4
 
       },
-      like_dislike: {
-        type: Sequelize.BOOLEAN
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -4,18 +4,18 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Like_dislike extends Model {
+  class Like extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate({ User, Post }) {
-		this.belongsTo(User, { foreignKey: "userId" })
-		this.belongsTo(Post, { foreignKey: "postId" })
+		this.belongsTo(User, { foreignKey: "userId", as: 'user' });
+		this.belongsTo(Post, { foreignKey: "postId", as: 'post' });
 	}
   }
-  Like_dislike.init({
+  Like.init({
     userId: {
 		type: DataTypes.UUID,
 		primaryKey: true,
@@ -28,10 +28,9 @@ module.exports = (sequelize, DataTypes) => {
 		allowNull: false,
 		defaultValue: DataTypes.UUIDV4
 	},
-    like_dislike: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'Like_dislike',
+    modelName: 'Like',
   });
-  return Like_dislike;
+  return Like;
 };

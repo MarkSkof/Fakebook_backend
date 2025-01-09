@@ -1,6 +1,5 @@
 'use strict';
 const { Model } = require('sequelize');
-const { User_settings } = require('./user_settings');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -8,11 +7,12 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Post, Comment, Like_dislike, User_settings }) {
-		this.hasMany(Post, { foreignKey: "userId", onDelete: "CASCADE" })
-		this.hasMany(Comment, { foreignKey: "userId", onDelete: "CASCADE" })
-		this.hasMany(Like_dislike, { foreignKey: "userId", onDelete: "CASCADE" })
-		this.hasOne(User_settings, { foreignKey: "userId", onDelete: "CASCADE" })
+    static associate({ Post, Comment, Like, User_settings, Profile }) {
+		this.hasMany(Post, { foreignKey: "userId", as: 'posts', onDelete: "CASCADE" })
+		this.hasMany(Comment, { foreignKey: "userId", as: 'comments', onDelete: "CASCADE" })
+		this.hasMany(Like, { foreignKey: "userId", as: 'likes', onDelete: "CASCADE" })
+		this.hasOne(User_settings, { foreignKey: "userId", as: 'settings', onDelete: "CASCADE" })
+		this.hasOne(Profile, { foreignKey: "userId", as: 'profile', onDelete: "CASCADE" })
 	}
   }
   User.init({
@@ -22,9 +22,13 @@ module.exports = (sequelize, DataTypes) => {
 		allowNull: false,
 		defaultValue: DataTypes.UUIDV4
 	},
-	username: {
+	firstname: {
 		type: DataTypes.STRING,
 		allowNull: false
+	},
+	lastname: {
+	  type: DataTypes.STRING,
+	  allowNull: false
 	},
     email: {
 		type: DataTypes.STRING,
@@ -42,6 +46,16 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+	validate: {
+		isValidAge() {
+			const date = new Date(this.birthDate)
+			const dateNow = new Date();
+			dateNow.setFullYear(dateNow.getFullYear() - 18)
+			if (dateNow < date) {
+				throw Error("You must be at least 18 years old to use this app.");
+			}
+		}
+	}
   });
 
   return User;

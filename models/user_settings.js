@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate({ User }) {
-		this.belongsTo(User, { foreignKey: "userId" })
+		this.belongsTo(User, { foreignKey: "userId", as: 'user' });
 	}
   }
   User_settings.init({
@@ -20,8 +20,6 @@ module.exports = (sequelize, DataTypes) => {
 		allowNull: false,
 		defaultValue: DataTypes.UUIDV4
 	},
-    profileImage: DataTypes.STRING,
-    bannerImage: DataTypes.STRING,
     bio: DataTypes.STRING ,
     theme: {
         type: DataTypes.STRING,
